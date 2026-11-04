@@ -8,4 +8,10 @@
     <RootNamespace>CalculadoraIMC</RootNamespace>
     <AssemblyName>CalculadoraIMC</AssemblyName>
   </PropertyGroup>
+
+  <!-- A pasta calculadorIMC contém um projeto antigo/duplicado.
+       Excluí-la evita que os respetivos .cs sejam compilados duas vezes. -->
+  <ItemGroup>
+    <Compile Remove="calculadorIMC\**\*.cs" />
+  </ItemGroup>
 </Project>

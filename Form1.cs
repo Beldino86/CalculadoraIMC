@@ -51,6 +51,8 @@ public class Form1 : Form
         btnCalcular.Size = new Size(150, 50);
         btnCalcular.Click += btnCalcular_Click;
 
+        AcceptButton = btnCalcular;
+
         lblResultado.Name = "lblResultado";
         lblResultado.Text = "Resultado do IMC e Classificação aparecerá aqui.";
         lblResultado.Location = new Point(30, 270);
@@ -63,19 +65,17 @@ public class Form1 : Form
 
     private void btnCalcular_Click(object? sender, EventArgs e)
     {
-        bool pesoOk = double.TryParse(txtPeso.Text.Trim(),
-            NumberStyles.Float, CultureInfo.InvariantCulture, out double peso);
-        bool alturaOk = double.TryParse(txtAltura.Text.Trim(),
-            NumberStyles.Float, CultureInfo.InvariantCulture, out double altura);
-
-        if (!pesoOk || !alturaOk)
+        if (!TryLerNumero(txtPeso.Text, out double peso) ||
+            !TryLerNumero(txtAltura.Text, out double altura))
         {
-            lblResultado.Text = "Introduza apenas valores numéricos (ex: 75.5 e 1.75).";
+            lblResultado.ForeColor = Color.Firebrick;
+            lblResultado.Text = "Introduza apenas valores numéricos válidos (ex.: 75,5 e 1,75).";
             return;
         }
 
         if (peso <= 0 || altura <= 0)
         {
+            lblResultado.ForeColor = Color.Firebrick;
             lblResultado.Text = "Peso e altura devem ser maiores que zero.";
             return;
         }
@@ -90,6 +90,21 @@ public class Form1 : Form
         else if (imc < 40) classificacao = "Obesidade grau II";
         else classificacao = "Obesidade grau III";
 
+        lblResultado.ForeColor = imc < 18.5 || imc >= 30
+            ? Color.Firebrick
+            : imc < 25 ? Color.SeaGreen : Color.DarkOrange;
         lblResultado.Text = $"IMC: {imc:F2} - {classificacao}";
+    }
+
+    /// <summary>
+    /// Converte o texto de forma segura, aceitando ponto ou vírgula como
+    /// separador decimal e rejeitando valores não finitos (NaN/Infinito).
+    /// </summary>
+    private static bool TryLerNumero(string texto, out double valor)
+    {
+        string normalizado = texto.Trim().Replace(',', '.');
+        return double.TryParse(normalizado, NumberStyles.Float,
+                   CultureInfo.InvariantCulture, out valor)
+               && double.IsFinite(valor);
     }
 }
